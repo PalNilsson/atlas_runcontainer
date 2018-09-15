@@ -26,16 +26,38 @@ print time.ctime()
 #      --outputs out.dat --site=ANALY_MANC_SL7 --noBuild \
 #      --inDS user.aforti.test5_out.dat.197875784
 
-# Example of runGen command to process
-# -j "" --sourceURL https://aipanda078.cern.ch:25443 -r . \
-# -p "chmod%20777%20run_grid.sh%3B%20./run_grid.sh%20229%20input.in%20\
-# --proc%20wm%20--mbins%2032%2C40%2C200%20--pdfset%20ATLAS-epWZ16-EIG%20\
-# --pdfvar%200%20--order%202%20--kmufac%201%20--kmuren%201%20\
-# --verbose%20%3B" \
-# -l panda.0911074511.596244.lib._15353637.14628477940.lib.tgz \
-# -o "{'results.txt': 'user.sawebb.15353637._000229.results.txt', \
-# 'results.root': 'user.sawebb.15353637._000229.results.root'}"
+# Examples of runGen command to process. For containers
+# they'll be simpler, but since we are shadowing runGen
+# we have to catch also what we don't process
+#
+# -j "" --sourceURL https://aipanda078.cern.ch:25443 -r .
+# -p "chmod%20777%20run_grid.sh%3B%20./run_grid.sh%20229%20input.in%20
+#     --proc%20wm%20--mbins%2032%2C40%2C200%20--pdfset%20ATLAS-epWZ16-EIG%20
+#     --pdfvar%200%20--order%202%20--kmufac%201%20--kmuren%201%20
+#     --verbose%20%3B"
+# -l panda.0911074511.596244.lib._15353637.14628477940.lib.tgz
+# -o "{'results.txt': 'user.sawebb.15353637._000229.results.txt',
+#      'results.root': 'user.sawebb.15353637._000229.results.root'}"
 # --rootVer 6.04.18
+#
+# -j "" --sourceURL https://aipanda078.cern.ch:25443 -r ./
+# -p "runjob.sh%20data17_13TeV.00339562.physics_Main.deriv.DAOD_HIGG2D1.
+#     f889_m1902_p3402"
+# -l panda.0914165400.532678.lib._15386194.14657955419.lib.tgz
+# -o "{'hist-output.root': 'user.milu.15386194._000006.hist-output.root',
+#      'myOutput.root': 'user.milu.15386194._000006.myOutput.root'}"
+# -i "['DAOD_HIGG2D1.12820426._000058.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000059.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000060.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000061.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000062.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000063.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000064.pool.root.1',
+#      'DAOD_HIGG2D1.12820426._000065.pool.root.1']"
+# --useAthenaPackages
+# --useCMake
+# --rootVer 6.12.06
+# --writeInputToTxt IN:input.txt
 
 
 def main():
@@ -88,15 +110,14 @@ def run_container(cmd=''):
 
 def input():
 
-    # place holder function. ATM if the file is there and the application knows
-    # about it this function isn't needed. However even without directIn and
-    # without PoolFileCatalogs. I expect the task input to be split
-    # by the system and the application not knowing.
-    logging.info("Input files %s" % args.input_files)
-
     input_string = ''
-    for file in args.input_files:
 
+    if args.input_files:
+        logging.info("Input files %s" % args.input_files)
+    else:
+        logging.info("No input files requested")
+
+    for file in args.input_files:
         if os.path.isfile(file):
             file = args.ctr_datadir+'/'+file
             input_string += "%s," % file
@@ -104,6 +125,17 @@ def input():
             logging.info("Input file %s is missing", file)
 
     input_string = input_string[:-1]
+
+    # Write input files string to a text file
+    if args.input_text:
+        # RunGen requires a 'IN' keyword as part of the argument
+        key, text_file = args.input_text.split(':')
+        if key == 'IN':
+            f = open(text_file, 'w')
+            f.write(input_string)
+            f.close()
+        else:
+            logging.error("Missing IN keyword in the argument IN:filename")
 
     return input_string
 
@@ -157,6 +189,13 @@ if __name__ == "__main__":
                             default="[]",
                             help='Input files')
 
+    # Some users prefer reading the input string from file
+    # might be the best also for containers
+    arg_parser.add_argument('--writeInputToTxt',
+                            dest='input_text',
+                            default="",
+                            help='Write input to a text file')
+
     # Container data directory
     arg_parser.add_argument('--containerDataDir',
                             dest='ctr_datadir',
@@ -193,7 +232,7 @@ if __name__ == "__main__":
                             default="",
                             help='Container environment variables')
 
-    # Container environment vars
+    # Debug
     arg_parser.add_argument('--debug',
                             dest='debug',
                             action='store_true',
@@ -213,6 +252,8 @@ if __name__ == "__main__":
                             level=logging.INFO,
                             format=format_str)
 
-    logging.info("Following arguments are unknown or unsupported %s" % unknown)
+    if unknown:
+        logging.info("Following arguments are unknown or unsupported %s" %
+                     unknown)
 
     main()
