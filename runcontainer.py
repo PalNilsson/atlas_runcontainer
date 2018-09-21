@@ -150,7 +150,7 @@ def rename_ouput():
         if old_name.find('*') != -1:
             subprocess.check_output(['tar', 'cvfz', new_name, old_name])
         else:
-            subprocess.check_output(['mv', new_name, old_name])
+            subprocess.check_output(['mv', old_name, new_name])
 
 
 if __name__ == "__main__":
