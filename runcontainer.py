@@ -4,7 +4,11 @@
 # You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0
 #
-# Based on runGen (T. Maeno)
+# Container TRF. It shadows runGen.py (T. Maeno) when the user
+# runs prun with --containerImage the pilot will run this code instead
+# of runGen.py. There are several runGen options that are not used here
+# but are automatically added by the system. The script will just log 
+# them without failures.
 #
 # Authors:
 # - Alessandra Forti, alessandra.forti@cern.ch, 2018
