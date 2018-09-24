@@ -12,6 +12,7 @@
 #
 # Authors:
 # - Alessandra Forti, alessandra.forti@cern.ch, 2018
+# - Paul Nilsson, paul.nilsson@cern.ch, 2018
 
 import os
 import sys
@@ -22,8 +23,8 @@ import urllib
 import ast
 import subprocess
 
-print "=== start ==="
-print time.ctime()
+print("=== start ===")
+print(time.ctime())
 
 # Example of prun command to process
 # prun --exec 'pwd && ls -l %IN %OUT' --outDS user.aforti.test$a \
@@ -121,12 +122,11 @@ def input():
     else:
         logging.info("No input files requested")
 
-    for file in args.input_files:
-        if os.path.isfile(file):
-            file = args.ctr_datadir+'/'+file
-            input_string += "%s," % file
+    for filename in args.input_files:
+        if os.path.isfile(filename):
+            input_string += "%s," % os.path.join(args.ctr_datadir, filename)
         else:
-            logging.info("Input file %s is missing", file)
+            logging.info("Input file %s is missing", filename)
 
     input_string = input_string[:-1]
 
