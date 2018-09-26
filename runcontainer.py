@@ -7,7 +7,7 @@
 # Container TRF. It shadows runGen.py (T. Maeno) when the user
 # runs prun with --containerImage the pilot will run this code instead
 # of runGen.py. There are several runGen options that are not used here
-# but are automatically added by the system. The script will just log 
+# but are automatically added by the system. The script will just log
 # them without failures.
 #
 # Authors:
@@ -21,9 +21,6 @@ import logging
 import urllib
 import ast
 import subprocess
-
-print "=== start ==="
-print time.ctime()
 
 # Example of prun command to process
 # prun --exec 'pwd && ls -l %IN %OUT' --outDS user.aforti.test$a \
@@ -67,9 +64,14 @@ print time.ctime()
 def main():
 
     """ Main function of run_container """
+
+    logging.info("Start time: "+time.ctime())
+
     sc = singularity_command()
     run_container(sc)
     rename_ouput()
+
+    logging.info("End time: "+time.ctime())
 
 
 def singularity_command():
@@ -92,9 +94,11 @@ def singularity_command():
 
     command = args.ctr_cmd.replace('%IN', input())
 
-    singularity_cmd = "%s --pwd %s -B $PWD:%s %s %s %s" % \
+    pwd = os.environ['PWD']
+    singularity_cmd = "%s --pwd %s -B %s:%s %s %s %s" % \
                       (singularity_base,
                        args.ctr_workdir,
+                       pwd,
                        args.ctr_datadir,
                        cvmfs,
                        args.ctr_image,
@@ -106,10 +110,16 @@ def singularity_command():
 
 def run_container(cmd=''):
 
-    # Just in case singularity is not the only container we run
-    # os.system going to be deprecated (?) but subprocess requires more
-    # thinking to handle $PWD.
-    os.system(cmd)
+    logging.info("Start container time: "+time.ctime())
+
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as cpe:
+        logging.error("Status : FAIL", cpe.returncode, cpe.output)
+    else:
+        logging.info(output)
+
+    logging.info("End container time: "+time.ctime())
 
 
 def input():
@@ -152,9 +162,13 @@ def rename_ouput():
     for old_name, new_name in args.output_files.iteritems():
         # archive *
         if old_name.find('*') != -1:
-            subprocess.check_output(['tar', 'cvfz', new_name, old_name])
+            tar_cmd = 'tar -zcvf '+new_name+'.tgz '+old_name
+            logging.debug("rename_output tar command: "+tar_cmd)
+            subprocess.check_output(tar_cmd, shell=True)
         else:
-            subprocess.check_output(['mv', old_name, new_name])
+            mv_cmd = 'mv '+old_name+' '+new_name
+            logging.debug("rename_output mv command: "+mv_cmd)
+            subprocess.check_output(mv_cmd, shell=True)
 
 
 if __name__ == "__main__":
@@ -211,7 +225,7 @@ if __name__ == "__main__":
     # Container workdir
     arg_parser.add_argument('--containerWorkDir',
                             dest='ctr_workdir',
-                            default="/",
+                            default="/work",
                             help='Change workdir inside the container. \
                                   Default: /')
 
