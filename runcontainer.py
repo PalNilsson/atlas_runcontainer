@@ -262,11 +262,11 @@ if __name__ == "__main__":
     # Setup the logging level
     format_str = '%(asctime)s | %(levelname)-8s | %(message)s'
     if args.debug:
-        logging.basicConfig(filename='run_container.log',
+        logging.basicConfig(filename='payload.stdout',
                             level=logging.DEBUG,
                             format=format_str)
     else:
-        logging.basicConfig(filename='run_container.log',
+        logging.basicConfig(filename='payload.stdout',
                             level=logging.INFO,
                             format=format_str)
 
