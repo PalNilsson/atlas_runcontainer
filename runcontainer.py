@@ -61,11 +61,13 @@ import subprocess
 # --rootVer 6.12.06
 # --writeInputToTxt IN:input.txt
 
+VERSION="1.0.10"
 
 def main():
 
     """ Main function of run_container """
 
+    logging.info("runcontainer version: "+VERSION)
     logging.info("Start time: "+time.ctime())
 
     sc = singularity_command()
@@ -134,7 +136,8 @@ def input():
 
     for filename in args.input_files:
         if os.path.isfile(filename):
-            input_string += "%s," % os.path.join(args.ctr_datadir, filename)
+            filename =  os.path.join(args.ctr_datadir, filename)
+            input_string += "%s," % filename
         else:
             logging.info("Input file %s is missing", filename)
 
