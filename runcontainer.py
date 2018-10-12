@@ -187,13 +187,6 @@ if __name__ == "__main__":
                           required=True,
                           help='Command to execute in the container')
 
-    # Container output dataset
-    required.add_argument('-o',
-                          dest='output_files',
-                          type=ast.literal_eval,
-                          required=True,
-                          help='Output files')
-
     # Container Image to use
     required.add_argument('--containerImage',
                           dest='ctr_image',
@@ -201,6 +194,13 @@ if __name__ == "__main__":
                           help='Image path in CVMFS or on docker')
 
     # Optional arguments
+
+    # Container output dataset
+    required.add_argument('-o',
+                          dest='output_files',
+                          type=ast.literal_eval,
+                          default="{}",
+                          help='Output files')
 
     # Container input dataset
     arg_parser.add_argument('-i',
@@ -264,11 +264,13 @@ if __name__ == "__main__":
     # Setup the logging level
     format_str = '%(asctime)s | %(levelname)-8s | %(message)s'
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG,
+        logging.basicConfig(stream=sys.stdout,level=logging.DEBUG,
                             format=format_str)
     else:
-        logging.basicConfig(level=logging.INFO,
+        logging.basicConfig(stream=sys.stdout,level=logging.INFO,
                             format=format_str)
+    logging.basicConfig(stream=sys.stderr,level=logging.ERROR,
+                        format=format_str)
 
     if unknown:
         logging.info("Following arguments are unknown or unsupported %s" %
