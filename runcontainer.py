@@ -60,7 +60,8 @@ import subprocess
 # --rootVer 6.12.06
 # --writeInputToTxt IN:input.txt
 
-VERSION="1.0.10"
+VERSION = "1.0.10"
+
 
 def main():
 
@@ -135,7 +136,7 @@ def input():
 
     for filename in args.input_files:
         if os.path.isfile(filename):
-            filename =  os.path.join(args.ctr_datadir, filename)
+            filename = os.path.join(args.ctr_datadir, filename)
             input_string += "%s," % filename
         else:
             logging.info("Input file %s is missing", filename)
@@ -264,12 +265,12 @@ if __name__ == "__main__":
     # Setup the logging level
     format_str = '%(asctime)s | %(levelname)-8s | %(message)s'
     if args.debug:
-        logging.basicConfig(stream=sys.stdout,level=logging.DEBUG,
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
                             format=format_str)
     else:
-        logging.basicConfig(stream=sys.stdout,level=logging.INFO,
+        logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                             format=format_str)
-    logging.basicConfig(stream=sys.stderr,level=logging.ERROR,
+    logging.basicConfig(stream=sys.stderr, level=logging.ERROR,
                         format=format_str)
 
     if unknown:
