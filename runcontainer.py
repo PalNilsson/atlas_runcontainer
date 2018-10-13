@@ -197,11 +197,11 @@ if __name__ == "__main__":
     # Optional arguments
 
     # Container output dataset
-    required.add_argument('-o',
-                          dest='output_files',
-                          type=ast.literal_eval,
-                          default="{}",
-                          help='Output files')
+    arg_parser.add_argument('-o',
+                            dest='output_files',
+                            type=ast.literal_eval,
+                            default="{}",
+                            help='Output files')
 
     # Container input dataset
     arg_parser.add_argument('-i',
