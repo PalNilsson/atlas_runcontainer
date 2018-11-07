@@ -228,7 +228,7 @@ if __name__ == "__main__":
     # Container workdir
     arg_parser.add_argument('--containerWorkDir',
                             dest='ctr_workdir',
-                            default="/work",
+                            default="/data",
                             help='Change workdir inside the container. \
                                   Default: /')
 
