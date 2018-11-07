@@ -60,7 +60,7 @@ import subprocess
 # --rootVer 6.12.06
 # --writeInputToTxt IN:input.txt
 
-VERSION = "1.0.10"
+VERSION = "1.0.15"
 
 
 def main():
