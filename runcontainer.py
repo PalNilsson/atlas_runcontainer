@@ -62,7 +62,6 @@ import subprocess
 
 VERSION = "1.0.15"
 
-
 def main():
 
     """ Main function of run_container """
@@ -162,18 +161,36 @@ def rename_ouput():
     # Rename the output files. No need to move them to currentDir
     # because we are already there. PFC and jobreport.json at
     # a later stage all jobs I checked have them empty anyway
-    for old_name, new_name in args.output_files.iteritems():
-        # archive *
-        if old_name.find('*') != -1:
-            tar_cmd = 'tar -zcvf '+new_name+'.tgz '+old_name
-            logging.debug("rename_output tar command: "+tar_cmd)
-            subprocess.check_output(tar_cmd, shell=True)
+    found = False
+    for root, subFolders, files in os.walk(args.ctr_datadir):
+        for old_name, new_name in args.output_files.iteritems():
+            # archive *
+            if old_name.find('*') != -1:
+                for folder in subFolders:
+                    out_folder = os.path.join(root,folder)
+                    try:
+                        os.chdir(out_folder)
+                        if glob.glob(old_name):
+                            found = True
+                            tar_cmd = 'tar -zcvf '+arg.ctr_datadir+'/'+new_name+'.tgz '+old_name
+                            logging.debug("rename_output tar command: "+tar_cmd)
+                            subprocess.check_output(tar_cmd, shell=True)
+                            break
+                    except OSError as err:
+                        logging.error("Cannot chdir. Error: "+format(err))
+                        pass
         else:
-            mv_cmd = 'mv '+old_name+' '+new_name
-            logging.debug("rename_output mv command: "+mv_cmd)
-            subprocess.check_output(mv_cmd, shell=True)
-
-
+            output_path = ''
+            for root, dirs, files in os.walk(args.ctr_datadir):
+                if old_name in files:
+                    output_path =  os.path.join(root, old_name)
+                    mv_cmd = 'mv '+output_path+' '+new_name
+                    logging.debug("rename_output mv command: "+mv_cmd)
+                    try:
+                        subprocess.check_output(mv_cmd, shell=True)
+                    except OSerror as err:
+                        logging.error("Cannot mv: "+format(err))
+                        
 if __name__ == "__main__":
 
     arg_parser = argparse.ArgumentParser()
