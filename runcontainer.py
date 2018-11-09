@@ -183,14 +183,11 @@ def rename_ouput():
         else:
             output_path = ''
             for root, dirs, files in os.walk(current_dir):
-                print files
                 if old_name in files:
                     output_path = os.path.join(root, old_name)
                     mv_cmd = 'mv '+output_path+' '+new_name
                     logging.debug("rename_output mv command: "+mv_cmd)
-                    print "aaaaa: "+mv_cmd
                     try:
-                        print "bbbbb: "+mv_cmd
                         subprocess.check_output(mv_cmd, shell=True)
                     except OSError as err:
                         logging.error("Cannot mv: "+format(err))
